@@ -1,0 +1,56 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+
+public class MyCommissionsPanel extends JPanel {
+
+    private SystemManager system = SystemManager.getInstance();
+    private User loggedInUser;
+
+    private DefaultTableModel commissionsModel;
+    private JTable commissionTable;
+
+    public MyCommissionsPanel(User user) {
+        this.loggedInUser = user;
+
+        setLayout(null);
+        initUI();
+        loadCommissions();
+    }
+
+    private void initUI() {
+
+        JLabel title = new JLabel("My Commissions");
+        title.setFont(new Font("Tahoma", Font.BOLD, 16));
+        title.setBounds(20, 10, 200, 25);
+        add(title);
+
+        commissionsModel = new DefaultTableModel(
+                new String[]{"Artist", "Category", "Description", "Budget", "Deadline", "Status"}, 0
+        );
+
+        commissionTable = new JTable(commissionsModel);
+
+        JScrollPane scrollPane = new JScrollPane(commissionTable);
+        scrollPane.setBounds(10, 50, 800, 350);
+        add(scrollPane);
+    }
+
+    public void loadCommissions() {
+
+        commissionsModel.setRowCount(0);
+
+        if (loggedInUser == null) return;
+
+        for (CommissionRequest req : system.getCommissionsByClient(loggedInUser.getUsername())) {
+            commissionsModel.addRow(new Object[]{
+                    req.getArtistUsername(),
+                    req.getCategory(),
+                    req.getDescription(),
+                    req.getBudget(),
+                    req.getDeadline(),
+                    req.getStatus()
+            });
+        }
+    }
+}
